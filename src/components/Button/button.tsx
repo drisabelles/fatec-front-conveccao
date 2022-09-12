@@ -1,11 +1,11 @@
-import { ButtonHTMLAttributes } from 'react';
+import * as S from "./styles"
 
-import './style.scss';
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
-
-export function Button(props: ButtonProps) {
+export function Button() {
   return (
-    <button className="button" {...props} />
+    <S.Container>
+      Cadastrar
+    </S.Container>
+
   );
 }

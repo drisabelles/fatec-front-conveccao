@@ -1,10 +1,18 @@
-import { BrowserRouter} from 'react-router-dom';
-import { PathRoutes } from './Routes';
+import CadastroEstacao from './pages/CadastroEstacoes';
+import { useState } from 'react';
 
-export const App = () => {
+function App() {
+  
+  const [isModalVisible, setIsModalVisible] = useState(false)
+
+  const toggleModal = () => {
+    setIsModalVisible(wasModalVisible => !wasModalVisible)
+  }
+
   return (
-    <BrowserRouter>
-      <PathRoutes />
-    </BrowserRouter>
-  );
-};
+    <CadastroEstacao>
+    </CadastroEstacao>
+  )
+}
+
+export default App;
