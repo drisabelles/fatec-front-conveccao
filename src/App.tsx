@@ -1,18 +1,16 @@
-import CadastroEstacao from './pages/CadastroEstacoes';
-import { useState } from 'react';
+import { SensorList } from "./pages/SensorList";
+import { ThemeProvider } from 'styled-components';
 
-function App() {
-  
-  const [isModalVisible, setIsModalVisible] = useState(false)
+import THEME from "./styles/theme";
 
-  const toggleModal = () => {
-    setIsModalVisible(wasModalVisible => !wasModalVisible)
-  }
+import './styles/global.css';
+import { ParameterRegister } from "./pages/ParameterRegister";
 
+export default function App() {
   return (
-    <CadastroEstacao>
-    </CadastroEstacao>
-  )
+   <ThemeProvider theme={THEME}>
+      <ParameterRegister/>
+   </ThemeProvider>
+  
+  );
 }
-
-export default App;
