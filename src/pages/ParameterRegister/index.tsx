@@ -12,7 +12,9 @@ export function ParameterRegister(){
         <Container>
             <HeaderDefault title='Cadastro de parâmetros'/>
             <Main>
-                <ParameterForm />
+                1 <ParameterForm />
+                2 <ParameterForm />
+                3 <ParameterForm />
             </Main>
             <Footer>
                 <ContentFooter>

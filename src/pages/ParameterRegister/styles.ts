@@ -4,7 +4,7 @@ import THEME from "../../styles/theme";
 export const Container = styled.div``;
 
 export const Main = styled.main`
-  max-width: 1000px;
+  max-width: 1400px;
   height: calc(70vh - 95px);
   margin: 50px auto;
   padding: 24px;
