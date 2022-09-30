@@ -16,7 +16,9 @@ export function StationList(){
             <Sidebar />
             <HeaderDefault title='Home'/>
             <Main> 
-              <Map />
+            <div id="map">
+                <Map />
+            </div> 
             </Main>
             <Footer>
             </Footer>
