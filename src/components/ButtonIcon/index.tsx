@@ -1,31 +1,37 @@
-import { ButtonDefault } from './styles'
+import { SButton } from './styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { ButtonHTMLAttributes } from 'react';
 
-
-type ButtonProps = {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     title: string;
+    marginBottom?: string;
     widthButton?: string;
     heightButton?: string;
     backgroundButton?: string;
+    colorButton?: string;
     icon?: IconDefinition;
 }   
 
-export default function ButtonIcon({
+export function ButtonIcon({
     title,
     icon,
+    marginBottom,
     widthButton,
     heightButton,
-    backgroundButton
+    backgroundButton,
+    colorButton
 }: ButtonProps){
     return(
-        <ButtonDefault  
+        <SButton  
         widthButton={widthButton} 
         heightButton={heightButton} 
         backgroundButton={backgroundButton}
+        marginBottom={marginBottom}
+        colorButton={colorButton}
         > 
             {icon && <FontAwesomeIcon icon={icon} />}
             {title}
-        </ButtonDefault> 
+        </SButton> 
     )
 }

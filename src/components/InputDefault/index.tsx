@@ -8,11 +8,12 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
     backgroundInput?: string;
 }
 
-export default function CustomInput({
+export function CustomInput({
     placeholder,
     widthInput,
     heightInput,
-    backgroundInput
+    backgroundInput,
+    onChange
 }: InputProps){
     return(
         <SInput 
@@ -20,6 +21,7 @@ export default function CustomInput({
         widthInput={widthInput} 
         heightInput={heightInput} 
         backgroundInput={backgroundInput}
+        onChange={onChange}
         />
     )
 }

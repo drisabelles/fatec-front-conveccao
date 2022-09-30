@@ -4,19 +4,23 @@ import THEME from "../../styles/theme";
 export const Container = styled.div``;
 
 export const Main = styled.main`
-  max-width: 440px;
-  height: calc(70vh - 95px);
-  margin: 50px auto;
+  max-width: 800px;
+  height: 550px;
+  margin: 100px auto;
   padding: 24px;
 
   display: flex;
   align-items: center;
 
-  background: ${THEME.colors.secondary_white};
+  background: ${THEME.colors.white_100};
 
-  border-radius: 16px;
+  border-radius: 8px;
  
-  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: ${THEME.boxShadow.shadowDefault};
+  
+   @media (max-height: 900px) {
+    margin: 50px auto;
+  }
 `;
 
 export const Footer = styled.footer`
@@ -28,4 +32,8 @@ export const ContentFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  
+   @media (max-width: 900px) {
+    justify-content: center;
+  }
 `;

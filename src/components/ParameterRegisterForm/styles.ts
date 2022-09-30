@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import THEME from '../../styles/theme';
 
 export const SForm = styled.form`
-    width: 100%;
+    width: 70%;
     height: auto;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content:space-evenly;
 `;
 
@@ -18,6 +18,6 @@ export const SLabel = styled.label`
     display: block;
     margin-bottom: 12px;
 
-    color: ${THEME.colors.blue};
+    color: ${THEME.colors.blue_100};
     font-weight: ${THEME.fontWeights.bold};
 `;
