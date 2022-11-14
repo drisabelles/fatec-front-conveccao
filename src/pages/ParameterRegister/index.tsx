@@ -1,18 +1,57 @@
-import {ButtonDefault} from '../../components/ButtonDefault';
-import {HeaderDefault} from '../../components/HeaderDefault';
+import { HeaderDefault } from '../../components/HeaderDefault';
 import ParameterForm from '../../components/ParameterRegisterForm';
 import { Sidebar } from '../../components/Sidebar';
 
+import SessionController from '../../session/sessionController';
+import { useNavigate } from "react-router-dom";
 
-import THEME from '../../styles/theme';
+import { Main, Container } from './styles';
+import { useEffect, useState } from 'react';
 
-import { Main, Footer, ContentFooter, Container } from './styles';
+export function ParameterRegister() {
 
-export function ParameterRegister(){
-    return(
+    const navigate = useNavigate();
+    const [autenticado, setAutenticado] = useState(true);
+
+    useEffect(() => {
+        checarAutenticacao()
+    }, [])
+
+    useEffect(() => {
+        // eslint-disable-next-line eqeqeq
+        if (!autenticado) {
+            navigate('/')
+        }
+    }, [autenticado, navigate])
+
+    useEffect(() => {
+        if (!autenticado || SessionController.getUserRole() == 'user') {
+            navigate('/home-page')
+        } else {
+            if(!checkStationExistence()) navigate('/station-list')
+          }
+    }, [autenticado, navigate])
+
+    const checarAutenticacao = async () => {
+        const token = SessionController.getToken()
+        if (token == null) {
+            setAutenticado(false)
+        } else {
+            setAutenticado(true)
+        }
+        return autenticado
+    }
+
+    const checkStationExistence = () => {
+        const station = SessionController.getStationData()
+        if(station) return true
+        return false
+      }
+
+    return (
         <Container>
-            <HeaderDefault title='Cadastro de parâmetros'/>
-            <Sidebar/>
+            <HeaderDefault title='Cadastro de parâmetros' />
+            <Sidebar />
             <Main>
                 <ParameterForm />
             </Main>

@@ -1,51 +1,128 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {ButtonDefault} from '../../components/ButtonDefault';
-import {HeaderDefault} from '../../components/HeaderDefault';
-import { Sidebar } from '../../components/Sidebar';
-import { TableStation } from '../../components/TableStation';
-import THEME from '../../styles/theme';
-import {CircularProgress, Box} from '@mui/material';
-import { Main, Footer, ContentFooter, Container } from './styles';
+import { useEffect, useState } from 'react'
+import Box from '@mui/material/Box'
 
-export function StationList(){
-    const [isLoading, setIsLoading] = useState(false);
+import { ButtonDefault } from '../../components/ButtonDefault'
+import { HeaderDefault } from '../../components/HeaderDefault'
+import { Sidebar } from '../../components/Sidebar'
+import SearchBar from '../../components/SearchBar'
+import { Filters } from '../../containers/Filters/Filters'
 
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-        const timer = setTimeout(() => {
-          setIsLoading(true);
-        }, 2000);
-        return () => clearTimeout(timer);
-      } , []);
+import axios from 'axios'
+import { URI } from '../../integration/uri'
 
-    return(
-        <Container>
-            <Sidebar />
-            <HeaderDefault title='Estações meteorológicas'/>
-            <Main> 
-            { 
-                isLoading ? 
-                <TableStation />
-                :
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%"}}>
-                    <CircularProgress color="success" />
-                </Box>
-            }
-            </Main>
-            <Footer>
-                <ContentFooter>
-                    <ButtonDefault 
-                     title='Cadastrar estação' 
-                     backgroundButton={THEME.colors.green_100} 
-                     widthButton={'184px'} 
-                     heightButton={'56px'}
-                     hoverBackgroundButton={THEME.colors.green_50}
-                     onClick={() => navigate('/stationregister')}
-                     />
-                </ContentFooter>
-            </Footer>
-        </Container>
-    )
+import SessionController from '../../session/sessionController'
+import { useNavigate } from 'react-router-dom'
+
+import { Main, Table, TableTH, TableTD, TableTDButton } from './styles'
+import THEME from '../../styles/theme'
+import { purple } from '@mui/material/colors'
+
+export function StationList() {
+  const navigate = useNavigate()
+  const [autenticado, setAutenticado] = useState(true)
+
+  useEffect(() => {
+    checarAutenticacao()
+  }, [])
+
+  useEffect(() => {
+    if (!autenticado) {
+      navigate('/login')
+    } else {
+      if (!checkAuthorization()) navigate('/home-page')
+    }
+  }, [autenticado, navigate])
+
+  const checkAuthorization = () => {
+    const userRole = SessionController.getUserRole()
+    if (userRole == 'user') return false
+    return true
+  }
+
+  const checarAutenticacao = async () => {
+    const token = SessionController.getToken()
+    if (token == null) {
+      setAutenticado(false)
+    } else {
+      setAutenticado(true)
+    }
+    return autenticado
+  }
+
+  const [stations, setStations] = useState([])
+
+  const handleGetAll = async () => {
+    const res = await axios.get(URI.STATIONS)
+    return res.data
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const getAllStations = async () => {
+    const allStations: [] = await handleGetAll()
+    setStations(allStations)
+  }
+
+  useEffect(() => {
+    getAllStations()
+  }, [getAllStations])
+
+  return (
+    <>
+      <HeaderDefault title="Lista das estações" />
+      <Sidebar />
+      <Main>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 1,
+            m: 1,
+            backgroundColor: purple[200],
+            borderRadius: 1,
+            width: '70%',
+            margin: 'auto',
+            height: '200px'
+          }}
+        >
+          <SearchBar />
+          <Filters />
+        </Box>
+        <Table>
+          <thead>
+            <tr>
+              <TableTH>Código</TableTH>
+              <TableTH>Nome da estação</TableTH>
+              <TableTH>Localização</TableTH>
+              <TableTH>Detalhes</TableTH>
+            </tr>
+          </thead>
+
+          <tbody>
+            {stations.map((station: any) => (
+              <tr key={station.id}>
+                <TableTD>{station.id}</TableTD>
+                <TableTD>{station.name}</TableTD>
+                <TableTD>{station.reference}</TableTD>
+                <TableTDButton>
+                  <ButtonDefault
+                    title="Detalhes"
+                    backgroundButton={THEME.colors.green_100}
+                    widthButton={'184px'}
+                    heightButton={'40px'}
+                    hoverBackgroundButton={THEME.colors.green_50}
+                    onClick={e => {
+                      navigate('/station-details')
+                      SessionController.setStationData(station)
+                    }}
+                  />
+                </TableTDButton>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Main>
+    </>
+  )
 }

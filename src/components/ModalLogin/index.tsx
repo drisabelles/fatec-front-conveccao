@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { faGoogle, faFacebook } from "@fortawesome/free-brands-svg-icons";
-import { GoogleAuthProvider, signInWithPopup, User} from "firebase/auth";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { FacebookAuthProvider, GithubAuthProvider, GoogleAuthProvider, signInWithPopup, User } from "firebase/auth";
 import { auth } from "../../services/firebase";
+
+import LogoGoogle from '../../assets/icons/googleIcon.svg';
 
 import {
   Container,
@@ -13,29 +15,127 @@ import {
   Subtitle,
   ButtonContainer,
   ButtonGoogle,
-  ButtonFacebook,
+  ButtonGithub,
   Header,
 } from "./styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import UserHandlers from "../../integration/handlers/userHandlers";
+import SessionController from "../../session/sessionController";
 
 export default function ModalLogin() {
+  const [user, setUser] = useState<User>({} as User);
+  const navigate = useNavigate();
+  const [authenticated, setAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [ user, setUser ] = useState<User>({} as User);
+  let userHandler = new UserHandlers();
 
-  function handleGoogleLogin(){
-    const provider = new GoogleAuthProvider();
+  useEffect(() => {
+    checkAuthentication()
+  }, [])
 
-    signInWithPopup (auth, provider)
-    .then (result => {setUser(result.user); console.log(result);})
-    .catch((error) => {console.log(error);})
+  const checkAuthentication = async () => {
+    const token = SessionController.getToken()
+    if (token == null) {
+      setAuthenticated(false)
+    } else {
+      setAuthenticated(true)
+    }
+    return authenticated
+  }
+
+  useEffect(() => {
+    if (authenticated) {
+      navigate('/home-page')
+    }
+  }, [authenticated, navigate])
+
+  const handleCreateUser = async (user: object) => {
+    try {
+      userHandler.handleCreateUser(user);
+      console.log(user);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleLogin = async (email: string) => {
+    try {
+      const obj = await userHandler.handleLogin(email);
+      SessionController.setToken(obj.token)
+      SessionController.setUserData(obj.user)
+      setAuthenticated(true)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleUserExists = async (email: string) => {
+    try {
+      return await userHandler.handleUserExists(email);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  async function handleFacebookLogin(){
+    const provider = new FacebookAuthProvider();
+    provider.addScope('name');
+    provider.addScope('email');
+    provider.addScope('picture{url}');
+
+    console.log("oi");
+
+    signInWithPopup(auth, provider)
+    .then(result => {console.log(result)}).catch(error => {console.log(error)});
+  }
+
+  async function handleGithubLogin() {
+    const provider = new GithubAuthProvider();
+  
+    signInWithPopup(auth, provider)
+    .then(async (result: any) => {
+        setUser(result.user);
+        let newUser = {
+          name: result.user.displayName,
+          email: result.user.email,
+          photo: result.user.photoURL,
+        };
+        let userExists = await handleUserExists(result.user.email);
+        if (!userExists[0]) {
+          handleCreateUser(newUser);
+        }
+        await handleLogin(result.user.email)
+      })
+      .catch((error: any) => {
+        console.log(error);
+        window.alert("Email cadastrado! Tente Logar com Gmail")
+      });
 
   }
 
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-
+  async function handleGoogleLogin() {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then(async (result: any) => {
+        setUser(result.user);
+        let newUser = {
+          name: result.user.displayName,
+          email: result.user.email,
+          photo: result.user.photoURL,
+        };
+        let userExists = await handleUserExists(result.user.email);
+        if (!userExists[0]) {
+          handleCreateUser(newUser);
+        }
+        await handleLogin(result.user.email)
+      })
+      .catch((error: any) => {
+        console.log(error);
+        window.alert("Email cadastrado! Tente Logar com GitHub")
+      });
+  }
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(true);
@@ -58,23 +158,21 @@ export default function ModalLogin() {
           {isLoading ? (
             <Subtitle>Acesse com sua rede social favorita</Subtitle>
           ) : (
-            <Skeleton animation="wave" variant="text" width="200px" height={25} />
+            <Skeleton
+              animation="wave"
+              variant="text"
+              width="200px"
+              height={25}
+            />
           )}
-      </SubtitleContainer>
+        </SubtitleContainer>
       </Header>
-
-      <div className=" user">
-        {user.photoURL && <img src={user.photoURL} style={{width: "40px", height: "40px"}}/>}
-        <strong>{user.displayName}</strong>
-        <small>{user.email}</small>
-      </div>
-      
       <ButtonContainer>
         {isLoading ? (
-            <ButtonGoogle onClick={handleGoogleLogin}>
-                <FontAwesomeIcon icon={faGoogle} />
-                Google
-            </ButtonGoogle>
+          <ButtonGoogle onClick={handleGoogleLogin}>
+            <img src={LogoGoogle} alt="Google Icon"/>
+            Faça login com o Google
+          </ButtonGoogle>
         ) : (
           <Skeleton
             variant="rounded"
@@ -86,10 +184,10 @@ export default function ModalLogin() {
         )}
 
         {isLoading ? (
-          <ButtonFacebook onClick={() => navigate('/dashboard')}>
-            <FontAwesomeIcon icon={faFacebook} />
-            Facebook
-          </ButtonFacebook>
+          <ButtonGithub onClick={handleGithubLogin}>
+           <FontAwesomeIcon icon={faGithub} size="lg" />
+              Faça login com o Github
+          </ButtonGithub>
         ) : (
           <Skeleton
             variant="rounded"
